@@ -2,12 +2,13 @@
 const roles = {
   harvester: require('roles.harvester'),
   upgrader: require('roles.upgrader'),
-  builder: require('roles.builder')
+  builder: require('roles.builder'),
+  worker: require('roles.worker')
 }
 
 const buildOrder = [
     {
-        creep: roles.harvester,
+        creep: roles.worker,
         amount: 1,
         condition: () => true
     },
@@ -17,13 +18,13 @@ const buildOrder = [
         condition: () => true
     },
     {
-        creep: roles.harvester,
+        creep: roles.worker,
         amount: 5,
         condition: () => true
     },
     {
         creep: roles.builder,
-        amount: 5,
+        amount: 3,
         condition: (room) => room.find(FIND_CONSTRUCTION_SITES).length > 0 
             || room.find(FIND_STRUCTURES, {
                 filter: (s) => s.hits < s.hitsMax && s.structureType != STRUCTURE_WALL
@@ -31,18 +32,9 @@ const buildOrder = [
               // we only want to have builders if we have things to build or repair
     },
     {
-        creep: roles.upgrader,
-        amount: 5,
+        creep: roles.worker,
+        amount: 10,
         condition: () => true
-    },
-    {
-        creep: roles.builder,
-        amount: 50,
-        condition: (room) => room.find(FIND_CONSTRUCTION_SITES).length > 0 
-            || room.find(FIND_STRUCTURES, {
-                filter: (s) => s.hits < s.hitsMax && s.structureType != STRUCTURE_WALL
-              })
-              // we only want to have builders if we have things to build or repair
     },
 ]
 

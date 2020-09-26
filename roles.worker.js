@@ -1,7 +1,7 @@
 const actions = require('./actions')
 const {buildWithEqualRations, getUniqueName} = require('creeputil');
 
-const role = 'builder';
+const role = 'worker';
 
 module.exports = {
   run: (creep) => {
@@ -12,7 +12,18 @@ module.exports = {
       }
 
       if (creep.memory.working) {
-        actions.build(creep);
+        // if we are less than our energy cap, we collect        
+        if(creep.room.energyAvailable < creep.room.energyCapacityAvailable) {
+          return actions.collect(creep);
+        }
+
+        // if there are construction sites, we build
+        if(room.find(FIND_CONSTRUCTION_SITES).length > 0 ) {
+          return actions.build(creep);
+        }
+
+        // otherwise we'll upgrade
+        actions.upgrade(creep);
       } else {
         actions.mine(creep);
       }

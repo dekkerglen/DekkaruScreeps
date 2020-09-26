@@ -4,8 +4,9 @@ const spawning = require('spawning')
 const roles = {
     harvester: require('roles.harvester'),
     upgrader: require('roles.upgrader'),
-    builder: require('roles.builder')
-}
+    builder: require('roles.builder'),
+    worker: require('roles.worker')
+  }
   
 module.exports.loop = () => {
     // cleanup dead creeps

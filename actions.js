@@ -5,13 +5,17 @@ const mine = (creep) => {
   }
 }
 
-const collect = (creep) => {
-  var structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-      filter: (s) => s.energy < s.energyCapacity
-  });
-
-  if (creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-    creep.moveTo(structure);
+const collect = (creep) => {   
+  if(creep.room.energyAvailable < creep.room.energyCapacityAvailable) {
+    var structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+        filter: (s) => s.energy < s.energyCapacity
+    });
+  
+    if (creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+      creep.moveTo(structure);
+    }
+  } else {
+    upgrade(creep); //default to upgrading if we're at energy cap
   }
 }
 
