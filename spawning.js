@@ -8,12 +8,17 @@ const roles = {
 const buildOrder = [
     {
         creep: roles.harvester,
-        amount: 5,
+        amount: 1,
         condition: () => true
     },
     {
         creep: roles.upgrader,
         amount: 1,
+        condition: () => true
+    },
+    {
+        creep: roles.harvester,
+        amount: 5,
         condition: () => true
     },
     {
@@ -49,7 +54,9 @@ const spawnNext = (room, counts) => {
     for(const phase of buildOrder) {
         if(phase.condition(room) && (counts[phase.creep.role] || 0) < phase.amount) {
             const res = phase.creep.build(spawn, room.energyCapacityAvailable);
-            console.log(res);
+            if(res != 0) {
+              console.log(`Error spawning: ${res}`);
+            }
         }
     }
   }
