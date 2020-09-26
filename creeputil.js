@@ -17,7 +17,7 @@ const buildWithEqualRations = (energy, parts) => {
   }
 
   console.log(res);
-  return res;
+  return res.sort();
 }
 
 module.exports = {
