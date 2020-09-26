@@ -17,6 +17,6 @@ module.exports = {
         actions.mine(creep);
       }
   },
-  build: (spawn, energy) => spawn.createCreep(buildWithEqualRations(energy,[WORK,CARRY,MOVE,MOVE]), undefined, { role, working: false}), 
+  build: (spawn, energy) => spawn.spawnCreep(buildWithEqualRations(energy,[WORK,CARRY,MOVE,MOVE]), `creep${Object.keys(Game.creeps).length}`, {memory:{ role, working: false}}),
   role
 };

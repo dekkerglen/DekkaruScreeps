@@ -54,6 +54,6 @@ const spawnNext = (room, counts) => {
   }
 }
 
-module.exports= {
+module.exports = {
   spawnNext
 }

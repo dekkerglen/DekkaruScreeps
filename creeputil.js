@@ -11,10 +11,12 @@ const buildWithEqualRations = (energy, parts) => {
       if(cost + partCosts[part] < energy) {
         res.push(part);
         done = false;
+        cost += partCosts[part];
       }
     }
   }
 
+  console.log(res);
   return res;
 }
 
