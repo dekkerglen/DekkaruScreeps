@@ -15,11 +15,20 @@ const buildWithEqualRations = (energy, parts) => {
       }
     }
   }
-
-  console.log(res);
-  return res.sort();
+  res.sort();
+  return res;
 }
+
+const getUniqueName = () => {
+  let i = 0;
+  while(Game.creeps[`creep${i}`]) {
+    i++;
+  }
+  return `creep${i}`;
+}
+
 
 module.exports = {
-  buildWithEqualRations
-}
+  buildWithEqualRations,
+  getUniqueName
+} 

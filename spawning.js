@@ -48,7 +48,8 @@ const spawnNext = (room, counts) => {
     })[0];
     for(const phase of buildOrder) {
         if(phase.condition(room) && (counts[phase.creep.role] || 0) < phase.amount) {
-            return phase.creep.build(spawn, room.energyCapacityAvailable);
+            const res = phase.creep.build(spawn, room.energyCapacityAvailable);
+            console.log(res);
         }
     }
   }

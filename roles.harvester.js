@@ -1,5 +1,5 @@
 const actions = require('./actions')
-const {buildWithEqualRations} = require('creeputil');
+const {buildWithEqualRations, getUniqueName} = require('creeputil');
 
 const role = 'harvester';
 
@@ -17,6 +17,6 @@ module.exports = {
         actions.mine(creep);
       }
   },
-  build: (spawn, energy) => spawn.spawnCreep(buildWithEqualRations(energy,[WORK,WORK,CARRY,MOVE]), `creep${Object.keys(Game.creeps).length}`, {memory:{ role, working: false}}),
+  build: (spawn, energy) => spawn.spawnCreep(buildWithEqualRations(energy,[WORK,MOVE,WORK,CARRY]), getUniqueName(), {memory:{ role, working: false}}),
   role
 };
