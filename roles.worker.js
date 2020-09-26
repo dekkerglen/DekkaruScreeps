@@ -18,7 +18,7 @@ module.exports = {
         }
 
         // if there are construction sites, we build
-        if(room.find(FIND_CONSTRUCTION_SITES).length > 0 ) {
+        if(creep.room.find(FIND_CONSTRUCTION_SITES).length > 0 ) {
           return actions.build(creep);
         }
 

@@ -9,7 +9,7 @@ const structureLimits = [
   { // level 2
     container: 5,
     spawn: 1,
-    extension: 10,
+    extension: 5,
   },
   { // level 3
     container: 5,
