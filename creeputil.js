@@ -8,7 +8,7 @@ const buildWithEqualRations = (energy, parts) => {
   while(!done) {
     done = true;
     for(const part of parts) {
-      if(cost + partCosts[part] < energy) {
+      if(cost + partCosts[part] <= energy) {
         res.push(part);
         done = false;
         cost += partCosts[part];
@@ -19,12 +19,12 @@ const buildWithEqualRations = (energy, parts) => {
   return res;
 }
 
-const getUniqueName = () => {
+const getUniqueName = (name) => {
   let i = 0;
-  while(Game.creeps[`creep${i}`]) {
+  while(Game.creeps[`${name}${i}`]) {
     i++;
   }
-  return `creep${i}`;
+  return `${name}${i}`;
 }
 
 
