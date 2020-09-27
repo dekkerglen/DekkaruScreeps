@@ -1,100 +1,19 @@
 const {structureLimits, structureThresholds} = require('constants');
-const { upgrade } = require('./actions');
+const { 
+  getSpiralAroundSpot,
+  distance,
+  getPositionsAround,
+  getOrthogonalPositionsAround,
+  groupConsecutivePos
+ } = require('./util');
 
-const UP = 0;
-const DOWN = 1;
-const LEFT = 2;
-const RIGHT = 3;
-
-const getSpiralAroundSpot = (x, y, room, index) => {
-  let direction = RIGHT;
-  let distance = 1;
-  let amount = 0;
-
-  const current = {
-    x,
-    y:y-1,
-    room: room.name
+const attemptWall = (constructions, pos, terrain) => {  
+  if(terrain.get(pos.x,pos.y) != 1) {
+    constructions.push({
+      type: STRUCTURE_WALL,
+      pos
+    });
   }
-
-  for(let i = 0; i < index; i++) {
-    switch(direction) {
-      case UP:
-        current.y--;
-        break;
-      case DOWN:
-        current.y++;
-        break;
-      case LEFT:
-        current.x--;
-        break;
-      case RIGHT:
-        current.x++;
-        break;
-    }
-
-    amount ++;
-    if(amount >= distance) {
-      amount = 0;
-      switch(direction) {
-        case UP:
-          direction = RIGHT;
-          break;
-        case DOWN:
-          direction = LEFT;
-          break;
-        case LEFT:
-          distance++;
-          direction = UP;
-          break;
-        case RIGHT:
-          distance++;
-          direction = DOWN;
-          break;
-      }
-    }
-  }
-
-  return current;
-}
-
-const distance = (pos1, pos2) => {
-  return Math.abs(pos1.x - pos2.x) + Math.abs(pos1.y-pos2.y);;
-}
-
-const getPositionsAround = (terrain, pos) => {
-  const res = [];
-
-  for(let x = 0; x < 3; x++) {
-    for(let y = 0; y < 3; y++) {
-      if(!(y == 1 && x == 1)) {
-        if(terrain.get(pos.x - 1 + x,pos.y - 1 + y) != 1) {
-          res.push({x: pos.x - 1 + x, y: pos.y - 1 + y});
-        }
-      }
-    }
-  }
-
-  return res;
-}
-
-const getOrthogonalPositionsAround = (terrain, pos) => {
-  const res = [];
-
-  if(terrain.get(pos.x - 1,pos.y) != 1) {
-    res.push({x: pos.x - 1, y: pos.y});
-  }
-  if(terrain.get(pos.x + 1,pos.y) != 1) {
-    res.push({x: pos.x + 1, y: pos.y});
-  }
-  if(terrain.get(pos.x, pos.y + 1) != 1) {
-    res.push({x: pos.x, y: pos.y + 1});
-  }
-  if(terrain.get(pos.x,pos.y - 1) != 1) {
-    res.push({x: pos.x, y: pos.y - 1});
-  }
-
-  return res;
 }
 
 const getPlan = (room) => {
@@ -144,7 +63,6 @@ const getPlan = (room) => {
       });
     }
 
-
     const structures = room.find(FIND_MY_STRUCTURES);
     const constructions = room.find(FIND_MY_CONSTRUCTION_SITES);
     const positions = structures.map((item) => item.pos)
@@ -189,6 +107,217 @@ const getPlan = (room) => {
           Memory.plans[room.name].constructions.push({
             type: STRUCTURE_ROAD,
             pos
+          });
+        }
+      }
+    }
+
+
+    // build walls and ramparts
+    // LEFT /////
+    const leftExits = groupConsecutivePos(room.find(FIND_EXIT_LEFT));
+    for(const group of leftExits) {  
+      // fence post first
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[0].x + 2,
+        y: group[0].y - 1,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[0].x + 2,
+        y: group[0].y - 2,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[0].x + 1,
+        y: group[0].y - 2,
+      }, terrain);
+      // fence post last
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[group.length - 1].x + 2,
+        y: group[group.length - 1].y + 1,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[group.length - 1].x + 2,
+        y: group[group.length - 1].y + 2,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[group.length - 1].x + 1,
+        y: group[group.length - 1].y + 2,
+      }, terrain);
+
+      for(let i = 0; i < group.length; i++) {
+        // if this is one of the two middle pieces, we need place a rampart
+        if(group.length <= 2 || i == Math.floor(group.length/2) || i == Math.floor(group.length/2) + 1) {
+          Memory.plans[room.name].constructions.push({
+            type: STRUCTURE_RAMPART,
+            pos: {
+              x: group[i].x + 2,
+              y: group[i].y
+            }
+          });
+        } else {
+          Memory.plans[room.name].constructions.push({
+            type: STRUCTURE_WALL,
+            pos: {
+              x: group[i].x + 2,
+              y: group[i].y
+            }
+          });
+        }
+      }
+    }
+
+    // build walls and ramparts
+    // RIGHT /////
+    const rightExits = groupConsecutivePos(room.find(FIND_EXIT_RIGHT));
+    for(const group of rightExits) {  
+      // fence post first
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[0].x - 2,
+        y: group[0].y - 1,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[0].x - 2,
+        y: group[0].y - 2,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[0].x - 1,
+        y: group[0].y - 2,
+      }, terrain);
+      // fence post last
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[group.length - 1].x - 2,
+        y: group[group.length - 1].y + 1,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[group.length - 1].x - 2,
+        y: group[group.length - 1].y + 2,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[group.length - 1].x - 1,
+        y: group[group.length - 1].y + 2,
+      }, terrain);
+
+      for(let i = 0; i < group.length; i++) {
+        // if this is one of the two middle pieces, we need place a rampart
+        if(group.length <= 2 || i == Math.floor(group.length/2) || i == Math.floor(group.length/2) + 1) {
+          Memory.plans[room.name].constructions.push({
+            type: STRUCTURE_RAMPART,
+            pos: {
+              x: group[i].x - 2,
+              y: group[i].y
+            }
+          });
+        } else {
+          Memory.plans[room.name].constructions.push({
+            type: STRUCTURE_WALL,
+            pos: {
+              x: group[i].x - 2,
+              y: group[i].y
+            }
+          });
+        }
+      }
+    }
+
+    // DOWN /////
+    const botExits = groupConsecutivePos(room.find(FIND_EXIT_BOTTOM));
+    for(const group of botExits) {  
+      // fence post first
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[0].x - 1,
+        y: group[0].y - 2,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[0].x - 2,
+        y: group[0].y - 2,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[0].x - 2,
+        y: group[0].y - 1,
+      }, terrain);
+      // fence post last
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[group.length - 1].x + 1,
+        y: group[group.length - 1].y - 2,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[group.length - 1].x + 2,
+        y: group[group.length - 1].y - 2,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[group.length - 1].x + 2,
+        y: group[group.length - 1].y - 1,
+      }, terrain);
+
+      for(let i = 0; i < group.length; i++) {
+        // if this is one of the two middle pieces, we need place a rampart
+        if(group.length <= 2 || i == Math.floor(group.length/2) || i == Math.floor(group.length/2) + 1) {
+          Memory.plans[room.name].constructions.push({
+            type: STRUCTURE_RAMPART,
+            pos: {
+              x: group[i].x,
+              y: group[i].y - 2
+            }
+          });
+        } else {
+          Memory.plans[room.name].constructions.push({
+            type: STRUCTURE_WALL,
+            pos: {
+              x: group[i].x,
+              y: group[i].y - 2
+            }
+          });
+        }
+      }
+    }
+
+    // UP /////
+    const topExits = groupConsecutivePos(room.find(FIND_EXIT_TOP));
+    for(const group of topExits) {  
+      // fence post first
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[0].x - 1,
+        y: group[0].y + 2,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[0].x - 2,
+        y: group[0].y + 2,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[0].x - 2,
+        y: group[0].y + 1,
+      }, terrain);
+      // fence post last
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[group.length - 1].x + 1,
+        y: group[group.length - 1].y + 2,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[group.length - 1].x + 2,
+        y: group[group.length - 1].y + 2,
+      }, terrain);
+      attemptWall(Memory.plans[room.name].constructions, {
+        x: group[group.length - 1].x + 2,
+        y: group[group.length - 1].y + 1,
+      }, terrain);
+
+      for(let i = 0; i < group.length; i++) {
+        // if this is one of the two middle pieces, we need place a rampart
+        if(group.length <= 2 || i == Math.floor(group.length/2) || i == Math.floor(group.length/2) + 1) {
+          Memory.plans[room.name].constructions.push({
+            type: STRUCTURE_RAMPART,
+            pos: {
+              x: group[i].x,
+              y: group[i].y + 2
+            }
+          });
+        } else {
+          Memory.plans[room.name].constructions.push({
+            type: STRUCTURE_WALL,
+            pos: {
+              x: group[i].x,
+              y: group[i].y + 2
+            }
           });
         }
       }

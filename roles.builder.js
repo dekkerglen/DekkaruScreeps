@@ -1,5 +1,5 @@
 const actions = require('./actions')
-const {buildWithEqualRations, getUniqueName} = require('creeputil');
+const {buildWithEqualRations, getUniqueName} = require('util');
 
 const role = 'builder';
 
@@ -12,7 +12,18 @@ module.exports = {
       }
 
       if (creep.memory.working) {
-        actions.build(creep);
+        // if there are any wall or ramparts with less than one percent, we must repair those
+        // this is important so we don't build a rampart or wall and have it decay immediately 
+        target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+          filter: (s) => (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART) && s.hits / s.hitsMax < 0.01
+        });
+
+        if(target) {
+          actions.repairWalls(creep);
+        } else {
+          actions.build(creep);
+        }       
+
       } else {
         actions.mine(creep);
       }

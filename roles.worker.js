@@ -1,5 +1,5 @@
 const actions = require('./actions')
-const {buildWithEqualRations, getUniqueName} = require('creeputil');
+const {buildWithEqualRations, getUniqueName} = require('util');
 
 const role = 'worker';
 

@@ -33,7 +33,7 @@ const buildOrder = [
     },
     {
         creep: roles.worker,
-        amount: 10,
+        amount: 6, //TODO: make this scale off of how many WORK parts per creep, based on how much energy output the room has
         condition: () => true
     },
 ]
