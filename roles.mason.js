@@ -1,7 +1,7 @@
 const actions = require('./actions')
 const {buildWithEqualRations, getUniqueName} = require('util');
 
-const role = 'harvester';
+const role = 'mason';
 
 module.exports = {
   run: (creep) => {
@@ -12,11 +12,11 @@ module.exports = {
       }
 
       if (creep.memory.working) {
-        actions.collect(creep);
+        actions.repairWalls(creep);
       } else {
         actions.mine(creep);
       }
   },
-  build: (spawn, energy) => spawn.spawnCreep(buildWithEqualRations(energy,[WORK,MOVE,WORK,CARRY]), getUniqueName(role), {memory:{ role, working: false}}),
+  build: (spawn, energy) => spawn.spawnCreep(buildWithEqualRations(energy,[WORK,CARRY,MOVE]), getUniqueName(role), {memory:{ role, working: false}}),
   role
 };

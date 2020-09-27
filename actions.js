@@ -32,7 +32,19 @@ const build = (creep) => {
           creep.moveTo(constructionSite);
       }
   } else {
-    repair(creep); // default to repairing if there's nothing to build
+    // need to make sure we put some energy into ramparts so they don't decay immediately
+    var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+      filter: (s) => s.structureType == STRUCTURE_RAMPART && s.hits / s.hitsMax < .01
+    });
+    
+    if (structure) {
+      if (creep.repair(structure) == ERR_NOT_IN_RANGE) {
+          // move towards it
+          creep.moveTo(structure);
+      }
+    } else {
+      repair(creep); // default to repairing if there's nothing to build
+    }
   }
 }
 
@@ -54,33 +66,22 @@ const repairWalls = (creep) => {
   var target = undefined;
 
   // loop with increasing percentages
-  for (let percentage = 0.0001; percentage <= 1; percentage = percentage + 0.0001){
-      // find a wall with less than percentage hits
-      // prioritize ramparts, those decay easily
-      target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-        filter: (s) => (s.structureType == STRUCTURE_RAMPART) && s.hits / s.hitsMax < percentage
-      });
-      if(!target) {
-        target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-            filter: (s) => (s.structureType == STRUCTURE_WALL) && s.hits / s.hitsMax < percentage
-        });
-      }
-
-      if (target) {
-          break;
-      }
-  }
-
-  // if we find a wall that has to be repaired
-  if (target != undefined) {
-      // try to repair it, if not in range
+  for (let percentage = 0.00001; percentage <= 1; percentage = percentage + 0.0001){
+    // find a wall with less than percentage hits
+    target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (s) => s.structureType == (STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART) && s.hits / s.hitsMax < percentage
+    });
+    
+    if (target) {
       if (creep.repair(target) == ERR_NOT_IN_RANGE) {
           // move towards it
           creep.moveTo(target);
       }
-  } else {
-    upgrade(creep); //default to upgrading if there's nothing to repair
+      return;
+    }
   }
+
+  repair(creep); //default reparing upgrading if there's no walls or ramparts to repair
 }
 
 
