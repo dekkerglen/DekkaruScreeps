@@ -21,7 +21,7 @@ const getPlan = (room) => {
     Memory.plans = {};
   }
 
-  if(true || !Memory.plans[room.name] || Memory.plans[room.name].level < room.controller.level) {
+  if(!Memory.plans[room.name] || Memory.plans[room.name].level < room.controller.level) {
     Memory.plans[room.name] = { constructions:[], level:room.controller.level };
 
     const terrain = room.getTerrain();
@@ -322,9 +322,11 @@ const getPlan = (room) => {
         }
       }
     }
+    return Memory.plans[room.name].constructions;
   } 
 
-  return Memory.plans[room.name].constructions;
+  // we only put down sites if we have a new plan
+  return [];
 }
 
 const buildSites = (room) => {

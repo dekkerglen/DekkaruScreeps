@@ -17,8 +17,8 @@ module.exports = {
           return actions.collect(creep);
         }
 
-        // if there are construction sites, we build
-        if(creep.room.find(FIND_CONSTRUCTION_SITES).length > 0 ) {
+        // if there are construction sites (excluding walls and ramparts, builders will take care of those), we build
+        if(creep.room.find(FIND_CONSTRUCTION_SITES).filter((s) => s.structureType != STRUCTURE_WALL && s.structureType != STRUCTURE_RAMPART).length > 0 ) {
           return actions.build(creep);
         }
 

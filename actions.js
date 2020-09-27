@@ -56,15 +56,17 @@ const repairWalls = (creep) => {
   // loop with increasing percentages
   for (let percentage = 0.0001; percentage <= 1; percentage = percentage + 0.0001){
       // find a wall with less than percentage hits
-
-      // so we have to use this
+      // prioritize ramparts, those decay easily
       target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-          filter: (s) => (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART) && s.hits / s.hitsMax < percentage
+        filter: (s) => (s.structureType == STRUCTURE_RAMPART) && s.hits / s.hitsMax < percentage
       });
+      if(!target) {
+        target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+            filter: (s) => (s.structureType == STRUCTURE_WALL) && s.hits / s.hitsMax < percentage
+        });
+      }
 
-      // if there is one
-      if (target != undefined) {
-          // break the loop
+      if (target) {
           break;
       }
   }

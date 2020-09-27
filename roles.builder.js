@@ -12,7 +12,7 @@ module.exports = {
       }
 
       if (creep.memory.working) {
-        // if there are any wall or ramparts with less than one percent, we must repair those
+        // if there are any wall or ramparts with less than 1 percent, we must repair those
         // this is important so we don't build a rampart or wall and have it decay immediately 
         target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
           filter: (s) => (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART) && s.hits / s.hitsMax < 0.01
