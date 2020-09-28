@@ -26,22 +26,25 @@ const upgrade = (creep) => {
 }
 
 const build = (creep) => {
-  var constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
-  if (constructionSite) {
-      if (creep.build(constructionSite) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(constructionSite);
-      }
-  } else {
+  // workers can skip this step, they need to focus on the more important infrastructure
+  if(creep.memory.role == 'builder') {
     // need to make sure we put some energy into ramparts so they don't decay immediately
     var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: (s) => s.structureType == STRUCTURE_RAMPART && s.hits / s.hitsMax < .01
+      filter: (s) => s.structureType == STRUCTURE_RAMPART && s.hits < 3000
     });
-    
-    if (structure) {
-      if (creep.repair(structure) == ERR_NOT_IN_RANGE) {
-          // move towards it
-          creep.moveTo(structure);
-      }
+  }
+  
+  if (structure) {
+    if (creep.repair(structure) == ERR_NOT_IN_RANGE) {
+        // move towards it
+        creep.moveTo(structure);
+    }
+  } else {
+    var constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+    if (constructionSite) {
+        if (creep.build(constructionSite) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(constructionSite);
+        }
     } else {
       repair(creep); // default to repairing if there's nothing to build
     }
