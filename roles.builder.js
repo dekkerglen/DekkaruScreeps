@@ -5,6 +5,11 @@ const role = 'builder';
 
 module.exports = {
   run: (creep) => {
+      // turn into a worker if we don't have any left
+      if(creep.room.find(FIND_MY_CREEPS).filter((item) => item.memory.role == 'worker') == 0) {
+        creep.memory.role == 'worker'
+      }
+
       if (creep.memory.working && creep.carry.energy == 0) {
           creep.memory.working = false;
       } else if (!creep.memory.working && creep.carry.energy == creep.carryCapacity) {

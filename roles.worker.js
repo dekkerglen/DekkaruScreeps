@@ -22,8 +22,8 @@ module.exports = {
           return actions.build(creep);
         }
 
-        // otherwise we'll upgrade
-        actions.upgrade(creep);
+        // otherwise we'll transfer to a tower
+        actions.transferTower(creep);
       } else {
         actions.mine(creep);
       }

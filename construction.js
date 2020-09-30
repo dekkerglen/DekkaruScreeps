@@ -74,7 +74,34 @@ const getPlan = (room) => {
 
     let extensionCount = extensions.length + extensionConstructions.length;
 
+    const towers = structures.filter((obj) => obj.structureType == STRUCTURE_TOWER)
+    const towerConstructions = constructions.filter((obj) =>  obj.structureType == STRUCTURE_TOWER)
+
+    let towerCount = towers.length + towerConstructions.length;
+
     let index = 0;    
+    while(index < 1000 && towerCount < (structureLimits[room.controller.level].tower || 0)) {
+      const coord= getSpiralAroundSpot(spawn.pos.x, spawn.pos.y, room, index);
+      index++;
+      // ensure checkerboard pattern,
+      // and on floor terrain, 
+      // and not too close to spawn, 
+      // and it doesn't take up a slot we have
+      // and not too close to any source
+      if((coord.x+coord.y) % 2 == 0 
+        && terrain.get(coord.x, coord.y) == 0 
+        && distance(spawn.pos, coord) > 2 
+        && positions.every((position) => !(coord.x == position.x && coord.y == position.y))
+        && energySources.every((source) => distance(source.pos, coord) > 2)) {      
+
+        Memory.plans[room.name].constructions.push({
+          type: STRUCTURE_TOWER,
+          pos:coord
+        });
+        towerCount++;
+      }
+    }
+
     while(index < 1000 && extensionCount < (structureLimits[room.controller.level].extension || 0)) {
       const coord= getSpiralAroundSpot(spawn.pos.x, spawn.pos.y, room, index);
       index++;
@@ -99,7 +126,7 @@ const getPlan = (room) => {
 
     // build roads around all extensions
     for(const site of Memory.plans[room.name].constructions) {
-      if(site.type == STRUCTURE_EXTENSION) {
+      if(site.type == STRUCTURE_EXTENSION || site.type == STRUCTURE_TOWER) {
 
         //build roads around this position
         const around = getOrthogonalPositionsAround(terrain, site.pos);
@@ -322,32 +349,52 @@ const getPlan = (room) => {
         }
       }
     }
-    return Memory.plans[room.name].constructions;
   } 
 
   // we only put down sites if we have a new plan
-  return [];
+  return Memory.plans[room.name].constructions;
+}
+
+const fromEntries = (items) => {
+  const res = [];
+
+  for(const item of items) {
+    res[item[0]] = item[1];
+  }
+
+  return res;
+}
+
+const convertPos = (pos) => {
+  return `(${pos.x}, ${pos.y})`;
 }
 
 const buildSites = (room) => {
   const plan = getPlan(room);
 
-  //builds roads
-      // from spawn to energy sources
-      // from upgrader to energy sources
+  const structures = fromEntries(room.find(FIND_MY_STRUCTURES).map((item) => [convertPos(item.pos), item]));
+  const constructions = fromEntries(room.find(FIND_MY_CONSTRUCTION_SITES).map((item) => [convertPos(item.pos), item]));
+
   for(const site of plan) {
-    const current = room.lookAt(site.pos).filter((obj) => obj.type == 'constructionSite' || obj.type =='structure');
-    if(current.length == 0) {
-      const res = room.createConstructionSite(site.pos.x, site.pos.y, site.type);
-    }    
+    const current = structures[convertPos(site.pos)];
+    if(current) {
+      if(current.structureType != site.type) {
+        current.destroy();
+        room.createConstructionSite(site.pos.x, site.pos.y, site.type);
+      }
+    } else {
+      // we haven't build this
+      const construction = constructions[convertPos(site.pos)];
+      if(construction) {
+        if(construction.structureType != site.type) {
+          construction.remove();
+          room.createConstructionSite(site.pos.x, site.pos.y, site.type);
+        }
+      } else {
+        room.createConstructionSite(site.pos.x, site.pos.y, site.type);
+      }
+    }  
   }
-
-
-  // build max extensions
-
-
-  // build walls w/ double ramparts?
-
 }
 
 module.exports= {
