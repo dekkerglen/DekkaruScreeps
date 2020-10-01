@@ -8,9 +8,8 @@ const mine = (creep) => {
 const collect = (creep) => {   
   if(creep.room.energyAvailable < creep.room.energyCapacityAvailable) {
     var structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-        filter: (s) => s.energy < s.energyCapacity
+        filter: (s) => s.energy < s.energyCapacity && (s.structureType == STRUCTURE_SPAWN || s.structureType == STRUCTURE_EXTENSION) 
     });
-  
     if (creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
       creep.moveTo(structure);
     }
@@ -38,9 +37,9 @@ const repair = (creep) => {
   });
 
   if (structure) {
-      if (creep.repair(structure) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(structure);
-      }
+    if (creep.repair(structure) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(structure);
+    }
   } else {
     repairWalls(creep); //fix walls if we can
   }
@@ -64,13 +63,22 @@ const transferTower = (creep) => {
 }
 
 const repairWalls = (creep) => {
+  var constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES, {
+    filter: (s) => s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART
+  });
+  if (constructionSite) {
+    if (creep.build(constructionSite) == ERR_NOT_IN_RANGE) {
+        return creep.moveTo(constructionSite);
+    }
+  } 
+
   var target = undefined;
 
   // loop with increasing percentages
-  for (let percentage = 0.00001; percentage <= 1; percentage = percentage + 0.0001){
+  for (let percentage = 0.0001; percentage <= 1; percentage = percentage + 0.001){
     // find a wall with less than percentage hits
     target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-        filter: (s) => s.structureType == (STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART) && s.hits / s.hitsMax < percentage
+        filter: (s) => (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART) && s.hits / s.hitsMax < percentage
     });
     
     if (target) {

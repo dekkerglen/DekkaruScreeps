@@ -1,5 +1,6 @@
 const actions = require('./actions')
 const {buildWithEqualRations, getUniqueName} = require('util');
+const construction = require('./construction');
 
 const role = 'worker';
 
@@ -10,6 +11,7 @@ module.exports = {
       } else if (!creep.memory.working && creep.carry.energy == creep.carryCapacity) {
           creep.memory.working = true;
       }
+
 
       if (creep.memory.working) {
         // if we are less than our energy cap, we collect        

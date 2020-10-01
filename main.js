@@ -40,7 +40,7 @@ const update = (room) => {
     }
 
     const towers = room.find(FIND_MY_STRUCTURES,{
-        filter: (s) => s.structureType == STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+        filter: (s) => s.structureType == STRUCTURE_TOWER
     });
 
     for(const tower of towers) {
