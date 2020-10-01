@@ -22,7 +22,13 @@ const buildOrder = [
     },
     {
         creep: roles.builder,
-        amount: () => 2,
+        amount: (room) => { // we only want 1 if there is nothing we need to build
+          const sites = room.find(FIND_CONSTRUCTION_SITES);
+          if(sites.length > 0) {
+            return 2;
+          }
+           return 1;
+        },
     },
     {
         creep: roles.worker,

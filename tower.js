@@ -18,7 +18,7 @@ const act = (room, tower) => {
   }  
 
   // repair
-  if(true || tower.store.getUsedCapacity(RESOURCE_ENERGY) > tower.store.getFreeCapacity(RESOURCE_ENERGY)) {
+  if(tower.store.getUsedCapacity(RESOURCE_ENERGY) > tower.store.getFreeCapacity(RESOURCE_ENERGY)) {
     let damaged = getMostDamaged(room.find(FIND_STRUCTURES, {
       filter: (s) => s.hits < s.hitsMax && s.structureType != STRUCTURE_WALL && s.structureType != STRUCTURE_RAMPART
     }));
